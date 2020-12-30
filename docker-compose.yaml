@@ -1,0 +1,81 @@
+version: "3.7"
+
+networks:
+  kafka-net:
+    name: kafka-net
+    driver: bridge
+
+services:
+  zookeeper:
+    image: zookeeper
+    container_name: zookeeper
+    restart: always
+    networks:
+      - kafka-net
+    ports:
+      - "2181:2181"
+    volumes:
+      - ./kafka/docker-data/zookeeper:/bitnami/zookeeper
+
+  kafka1:
+    image: wurstmeister/kafka
+    container_name: kafka1
+    restart: always
+    networks:
+      - kafka-net
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./kafka/docker-data/kafka1:/bitnami/kafka
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_INTERNAL:PLAINTEXT,DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: DOCKER_INTERNAL://:29093,DOCKER_EXTERNAL://:9093
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_INTERNAL://kafka1:29093,DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  kafka2:
+    image: wurstmeister/kafka
+    container_name: kafka2
+    restart: always
+    networks:
+      - kafka-net
+    ports:
+      - "9094:9094"
+    volumes:
+      - ./kafka/docker-data/kafka2:/bitnami/kafka
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_INTERNAL:PLAINTEXT,DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: DOCKER_INTERNAL://:29094,DOCKER_EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_INTERNAL://kafka2:29094,DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  kafka3:
+    image: wurstmeister/kafka
+    container_name: kafka3
+    restart: always
+    networks:
+      - kafka-net
+    ports:
+      - "9095:9095"
+    volumes:
+      - ./kafka/docker-data/kafka3:/bitnami/kafka
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_INTERNAL:PLAINTEXT,DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: DOCKER_INTERNAL://:29095,DOCKER_EXTERNAL://:9095
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_INTERNAL://kafka3:29095,DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9095
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 3
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
